@@ -1,6 +1,6 @@
 # 🤖 HR Policy Intelligence Chatbot — RAG-Powered HR & Labour Law Q&A
 
-[![CI](https://github.com/narendrakalam2001/hr-policy-rag-chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/narendrakalam2001/hr-policy-rag-chatbot/actions)
+[![CI](https://github.com/narendrakalam2001/HR-Policy-Intelligence-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/narendrakalam2001/HR-Policy-Intelligence-Chatbot/actions)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
 [![LangChain](https://img.shields.io/badge/LangChain-0.3-1c3c3c.svg)](https://langchain.com)
 [![Gemini](https://img.shields.io/badge/LLM-Gemini%203.6%20Flash-4285F4.svg)](https://ai.google.dev)
@@ -51,9 +51,9 @@ This mirrors how real enterprise HR chatbots are built: cheap local retrieval do
 
 | Service | URL |
 |---|---|
-| 🚀 **Chatbot (Hugging Face Space)** | _add your Space URL here after deploying (see below)_ |
+| 🚀 **Chatbot (Hugging Face Space)** |..... |
 | 📓 **EDA / Corpus Exploration Notebook** | [notebooks/hr_policy_eda.ipynb](notebooks/hr_policy_eda.ipynb) |
-| 🧪 **CI Runs** | [GitHub Actions](https://github.com/narendrakalam2001/hr-policy-rag-chatbot/actions) |
+| 🧪 **CI Runs** | [GitHub Actions](https://github.com/narendrakalam2001/HR-Policy-Intelligence-Chatbot/actions) |
 
 > ⚠️ Hugging Face Spaces free tier: first request after inactivity may take 15-30 seconds (cold start / sleep).
 
@@ -261,7 +261,13 @@ Full beginner-level command-by-command instructions (Command Prompt, GitHub push
 | 11 | BC5CDR Clinical NER | Biomedical NLP | BioBERT | F1 = 0.8847 · Chemical F1 = 0.9239 |
 | 12 | News Topic Modeling | Media Analytics | LDA (Gensim) | Cv = 0.6225 · Diversity = 0.92 |
 | 13 | Chest X-Ray Diagnosis | Healthcare AI | DenseNet121 | Mean AUC = 0.7864 · 14 classes |
-| 14 | **HR Policy Intelligence Chatbot** | **HR Tech / Enterprise GenAI** | **Gemini 3.6 Flash + RAG** | **30/30 tests · guardrail threshold=0.35** |
+| 14 | Real-Time Object Detection | Computer Vision / Retail-Security | YOLOv8s | mAP50-95 = 0.5341 · 32 FPS |
+| 15 | Face Emotion Recognition | EdTech / Retail CX | CNN-from-scratch | Macro-F1 = 0.5950 · 7 classes |
+| 16 | Customer Segmentation Engine | E-Commerce / BFSI | DBSCAN (Unsupervised) | Silhouette = 0.4056 |
+| 17 | Market Basket Analysis (Instacart) | Retail / Quick-Commerce | Apriori | 68,820 rules · mean lift = 15.66 |
+| 18 | E-Commerce / OTT Recommender | E-Commerce / Streaming | Hybrid (SVD + Content) | NDCG@10 = 0.0407 · 4 candidates |
+| 19 | Hospital Readmission Prediction | Healthcare / Hospital Ops | ExtraTrees | F1 = 0.2702 · ROC-AUC = 0.6513 |
+| 20 | **HR Policy Intelligence Chatbot** | **HR Tech / Enterprise GenAI** | **Gemini 3.6 Flash + RAG** | **30/30 tests · guardrail threshold=0.35** |
 
 ---
 
