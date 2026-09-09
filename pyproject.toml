@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 100
+# Notebooks legitimately need `sys.path` manipulation before imports (to
+# locate the `app` package when run from notebooks/), which trips E402
+# ("module level import not at top of file"). Excluding notebooks from
+# lint here matches common practice — the production `app/` code is still
+# fully linted.
+extend-exclude = ["notebooks"]

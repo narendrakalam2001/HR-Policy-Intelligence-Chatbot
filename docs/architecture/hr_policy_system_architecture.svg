@@ -1,0 +1,129 @@
+<svg width="100%" viewBox="0 0 1100 700" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Arial, sans-serif">
+<title>HR Policy Intelligence Chatbot — System Architecture</title>
+<desc>5-layer RAG system architecture: Data, Retrieval, Generation, Serving, and Deployment</desc>
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#4a7fd4" stroke-width="1.5"/>
+  </marker>
+  <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+  </marker>
+  <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+  </marker>
+  <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+  </marker>
+  <marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="#10b981" stroke-width="1.5"/>
+  </marker>
+</defs>
+<text x="550" y="24" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a2e">HR Policy Intelligence Chatbot — System Architecture</text>
+<rect x="10" y="38" width="1080" height="104" rx="8" fill="#0d1b4b" opacity="0.93"/>
+<text x="18" y="54" font-size="10" font-weight="700" fill="#7eb3f7" letter-spacing="1.5">DATA LAYER — OFFLINE INGESTION (python ingest.py)</text>
+<rect x="28.0" y="60" width="196.0" height="68" rx="6" fill="#1a3a7a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="126.0" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">HR/Labour-Law PDFs</text>
+<text x="126.0" y="97" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">5-6 PDFs · 80-120 pages</text>
+<text x="126.0" y="112" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">POSH · Leave · Gratuity</text>
+<line x1="224.0" y1="94.0" x2="240.0" y2="94.0" stroke-width="1.2" marker-end="url(#arr)" stroke="#4a7fd4"/>
+<rect x="240.0" y="60" width="196.0" height="68" rx="6" fill="#1a3a7a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="338.0" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">PyMuPDF Extraction</text>
+<text x="338.0" y="97" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Per-page text + page no.</text>
+<text x="338.0" y="112" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Skips empty/scanned pages</text>
+<line x1="436.0" y1="94.0" x2="452.0" y2="94.0" stroke-width="1.2" marker-end="url(#arr)" stroke="#4a7fd4"/>
+<rect x="452.0" y="60" width="196.0" height="68" rx="6" fill="#1a3a7a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="550.0" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Chunking</text>
+<text x="550.0" y="97" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">RecursiveCharacterTextSplitter</text>
+<text x="550.0" y="112" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">size=1000 · overlap=150</text>
+<line x1="648.0" y1="94.0" x2="664.0" y2="94.0" stroke-width="1.2" marker-end="url(#arr)" stroke="#4a7fd4"/>
+<rect x="664.0" y="60" width="196.0" height="68" rx="6" fill="#1a3a7a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="762.0" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">all-MiniLM-L6-v2</text>
+<text x="762.0" y="97" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">sentence-transformers</text>
+<text x="762.0" y="112" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">L2-normalized embeddings</text>
+<line x1="860.0" y1="94.0" x2="876.0" y2="94.0" stroke-width="1.2" marker-end="url(#arr)" stroke="#4a7fd4"/>
+<rect x="876.0" y="60" width="196.0" height="68" rx="6" fill="#1a3a7a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="974.0" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">ChromaDB</text>
+<text x="974.0" y="97" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Persistent · cosine space</text>
+<text x="974.0" y="112" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Content-addressed chunk IDs</text>
+<rect x="10" y="158" width="1080" height="126" rx="8" fill="#2e1a5e" opacity="0.93"/>
+<text x="18" y="174" font-size="10" font-weight="700" fill="#c4b5fd" letter-spacing="1.5">RETRIEVAL PIPELINE — QUERY TIME</text>
+<line x1="88.0" y1="142" x2="88.0" y2="158" stroke-width="1.2" marker-end="url(#arr)" stroke="#4a7fd4"/>
+<rect x="28.0" y="180" width="337.3" height="80" rx="6" fill="#3d2277" stroke="#8b5cf6" stroke-width="0.8"/>
+<text x="196.7" y="202" text-anchor="middle" font-size="12" font-weight="600" fill="#e8f0fe">Query Preprocessing</text>
+<text x="196.7" y="217" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">Typo correction (difflib)</text>
+<text x="196.7" y="232" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">HR abbreviation expansion</text>
+<text x="196.7" y="247" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">POSH · CL/PL · ESI · EPF</text>
+<line x1="365.3" y1="220.0" x2="381.3" y2="220.0" stroke-width="1.2" marker-end="url(#arr2)" stroke="#8b5cf6"/>
+<rect x="381.3" y="180" width="337.3" height="80" rx="6" fill="#3d2277" stroke="#8b5cf6" stroke-width="0.8"/>
+<text x="550.0" y="202" text-anchor="middle" font-size="12" font-weight="600" fill="#e8f0fe">Similarity Search</text>
+<text x="550.0" y="217" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">Top-k = 4 · cosine relevance</text>
+<text x="550.0" y="232" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">Same embedding model as ingest</text>
+<text x="550.0" y="247" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0"></text>
+<line x1="718.7" y1="220.0" x2="734.7" y2="220.0" stroke-width="1.2" marker-end="url(#arr2)" stroke="#8b5cf6"/>
+<rect x="734.7" y="180" width="337.3" height="80" rx="6" fill="#3d2277" stroke="#8b5cf6" stroke-width="0.8"/>
+<text x="903.3" y="202" text-anchor="middle" font-size="12" font-weight="600" fill="#e8f0fe">Relevance Guardrail</text>
+<text x="903.3" y="217" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">threshold = 0.35</text>
+<text x="903.3" y="232" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">&lt; thr → fallback, NO LLM call</text>
+<text x="903.3" y="247" text-anchor="middle" font-size="9.5" font-weight="400" fill="#a8bdf0">≥ thr → proceed to generation</text>
+<rect x="10" y="300" width="1080" height="104" rx="8" fill="#5a3a0a" opacity="0.93"/>
+<text x="18" y="316" font-size="10" font-weight="700" fill="#fbbf24" letter-spacing="1.5">GENERATION LAYER</text>
+<line x1="903.3" y1="284" x2="903.3" y2="300" stroke-width="1.2" marker-end="url(#arr3)" stroke="#f59e0b"/>
+<rect x="28.0" y="322" width="337.3" height="68" rx="6" fill="#7a4f0a" stroke="#f59e0b" stroke-width="0.8"/>
+<text x="196.7" y="344" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Prompt Assembly</text>
+<text x="196.7" y="359" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">System rules + retrieved context</text>
+<text x="196.7" y="374" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">+ last 5 conversation turns</text>
+<line x1="365.3" y1="356.0" x2="381.3" y2="356.0" stroke-width="1.2" marker-end="url(#arr3)" stroke="#f59e0b"/>
+<rect x="381.3" y="322" width="337.3" height="68" rx="6" fill="#7a4f0a" stroke="#f59e0b" stroke-width="0.8"/>
+<text x="550.0" y="344" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Gemini 1.5 Flash</text>
+<text x="550.0" y="359" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">temperature=0.2 · timeout=20s</text>
+<text x="550.0" y="374" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">retry ×3, exponential backoff</text>
+<line x1="718.7" y1="356.0" x2="734.7" y2="356.0" stroke-width="1.2" marker-end="url(#arr3)" stroke="#f59e0b"/>
+<rect x="734.7" y="322" width="337.3" height="68" rx="6" fill="#7a4f0a" stroke="#f59e0b" stroke-width="0.8"/>
+<text x="903.3" y="344" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Answer + Citations</text>
+<text x="903.3" y="359" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">source file + page number</text>
+<text x="903.3" y="374" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">confidence = top relevance score</text>
+<rect x="10" y="420" width="1080" height="104" rx="8" fill="#1f2937" opacity="0.93"/>
+<text x="18" y="436" font-size="10" font-weight="700" fill="#d1d5db" letter-spacing="1.5">SERVING LAYER — STREAMLIT</text>
+<line x1="903.3" y1="404" x2="903.3" y2="420" stroke-width="1.2" marker-end="url(#arr4)" stroke="#6b7280"/>
+<rect x="28.0" y="442" width="337.3" height="68" rx="6" fill="#374151" stroke="#6b7280" stroke-width="0.8"/>
+<text x="196.7" y="464" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Chat UI</text>
+<text x="196.7" y="479" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">st.chat_input / st.chat_message</text>
+<text x="196.7" y="494" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Source + confidence caption</text>
+<line x1="365.3" y1="476.0" x2="381.3" y2="476.0" stroke-width="1.2" marker-end="url(#arr4)" stroke="#6b7280"/>
+<rect x="381.3" y="442" width="337.3" height="68" rx="6" fill="#374151" stroke="#6b7280" stroke-width="0.8"/>
+<text x="550.0" y="464" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Session State</text>
+<text x="550.0" y="479" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">messages[] · chat_history_pairs[]</text>
+<text x="550.0" y="494" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Survives Streamlit reruns</text>
+<line x1="718.7" y1="476.0" x2="734.7" y2="476.0" stroke-width="1.2" marker-end="url(#arr4)" stroke="#6b7280"/>
+<rect x="734.7" y="442" width="337.3" height="68" rx="6" fill="#374151" stroke="#6b7280" stroke-width="0.8"/>
+<text x="903.3" y="464" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Conversation Memory</text>
+<text x="903.3" y="479" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Windowed to last 5 turns</text>
+<text x="903.3" y="494" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Fed back into next prompt</text>
+<rect x="10" y="540" width="1080" height="118" rx="8" fill="#3a0a1e" opacity="0.93"/>
+<text x="18" y="556" font-size="10" font-weight="700" fill="#fca5a5" letter-spacing="1.5">DEPLOYMENT &amp; QUALITY</text>
+<line x1="88.0" y1="524" x2="88.0" y2="540" stroke-width="1.2" marker-end="url(#arr5)" stroke="#10b981"/>
+<rect x="28.0" y="562" width="337.3" height="68" rx="6" fill="#5a0a2a" stroke="#ef4444" stroke-width="0.8"/>
+<text x="196.7" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Docker</text>
+<text x="196.7" y="599" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Non-root user · healthcheck</text>
+<text x="196.7" y="614" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Port 7860 (HF Spaces-ready)</text>
+<line x1="365.3" y1="596.0" x2="381.3" y2="596.0" stroke-width="1.2" marker-end="url(#arr5)" stroke="#10b981"/>
+<rect x="381.3" y="562" width="337.3" height="68" rx="6" fill="#5a0a2a" stroke="#ef4444" stroke-width="0.8"/>
+<text x="550.0" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">entrypoint.sh</text>
+<text x="550.0" y="599" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Conditional ingest on first boot</text>
+<text x="550.0" y="614" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">FORCE_REINGEST override</text>
+<line x1="718.7" y1="596.0" x2="734.7" y2="596.0" stroke-width="1.2" marker-end="url(#arr5)" stroke="#10b981"/>
+<rect x="734.7" y="562" width="337.3" height="68" rx="6" fill="#5a0a2a" stroke="#ef4444" stroke-width="0.8"/>
+<text x="903.3" y="584" text-anchor="middle" font-size="11" font-weight="600" fill="#e8f0fe">Hugging Face Spaces</text>
+<text x="903.3" y="599" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Docker SDK · GEMINI_API_KEY secret</text>
+<text x="903.3" y="614" text-anchor="middle" font-size="9" font-weight="400" fill="#a8bdf0">Auto-build on git push</text>
+<rect x="28" y="628" width="1044" height="24" rx="4" fill="#0f2a1a" stroke="#10b981" stroke-width="0.8"/>
+<text x="550.0" y="644" text-anchor="middle" font-size="10" fill="#6ee7b7">GitHub Actions CI:  ruff lint  →  pytest (29/29 passing)  →  docker build</text>
+<rect x="28.0" y="674" width="249.0" height="26" rx="4" fill="#1c1c3a" stroke="#4a7fd4" stroke-width="0.8"/>
+<text x="152.5" y="691.0" text-anchor="middle" font-size="10" fill="#93b8f7">pytest: 29/29 PASSED ✓</text>
+<rect x="293.0" y="674" width="249.0" height="26" rx="4" fill="#1c1c3a" stroke="#10b981" stroke-width="0.8"/>
+<text x="417.5" y="691.0" text-anchor="middle" font-size="10" fill="#6ee7b7">Gemini 1.5 Flash · MiniLM-L6-v2</text>
+<rect x="558.0" y="674" width="249.0" height="26" rx="4" fill="#1c1c3a" stroke="#8b5cf6" stroke-width="0.8"/>
+<text x="682.5" y="691.0" text-anchor="middle" font-size="10" fill="#c4b5fd">ChromaDB cosine · threshold=0.35</text>
+<rect x="823.0" y="674" width="249.0" height="26" rx="4" fill="#1c1c3a" stroke="#f59e0b" stroke-width="0.8"/>
+<text x="947.5" y="691.0" text-anchor="middle" font-size="10" fill="#fbbf24">Docker → HF Spaces · CI/CD</text>
+</svg>
