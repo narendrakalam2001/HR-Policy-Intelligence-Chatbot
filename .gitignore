@@ -28,7 +28,5 @@ logs/
 .vscode/
 .idea/
 
-# Large source PDFs are typically re-downloadable from public government/
-# HR sites — keep the repo light. Remove this line if you want to commit
-# the actual PDFs for full reproducibility.
-# data/policies/*.pdf
+# Note: PDF source documents in data/policies/ are intentionally NOT
+# excluded here — they're committed to the repo for reproducibility.

@@ -6,8 +6,10 @@ Main chat interface for the HR Policy Intelligence Chatbot.
 Run with:
     streamlit run streamlit_app.py
 
-Assumes `python ingest.py` has already been run to populate the local
-ChromaDB store from `data/policies/`.
+If the vector store is empty (e.g. a fresh clone on Streamlit Community
+Cloud, which has no way to run a custom entrypoint before `streamlit run`
+the way the Docker image's entrypoint.sh does), this module runs ingestion
+automatically on first load — see `_ensure_knowledge_base_ready`.
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ import logging
 import streamlit as st
 
 from app.llm_chain import ChatResponse, LLMCallError, RAGChatbot
+from app.rag_pipeline import EmptyKnowledgeBaseError, discover_pdfs, get_vector_store, ingest_all
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -33,6 +36,45 @@ st.set_page_config(
 # --------------------------------------------------------------------------- #
 
 
+def _ensure_knowledge_base_ready() -> None:
+    """
+    Auto-ingest on first run if the vector store is empty but PDFs are
+    present in `data/policies/`.
+
+    Needed for deployment targets that only run `streamlit run
+    streamlit_app.py` directly with no custom startup hook — e.g. Streamlit
+    Community Cloud — unlike the Docker image, where `entrypoint.sh` runs
+    `ingest.py` before launching Streamlit. Running `python ingest.py`
+    manually (as in local/Docker setups) still works fine; this is a no-op
+    once the store is already populated.
+    """
+    try:
+        existing_count = get_vector_store()._collection.count()
+    except Exception:
+        logger.exception("Could not check existing vector store state.")
+        existing_count = 0
+
+    if existing_count > 0:
+        return
+
+    if not discover_pdfs():
+        logger.warning(
+            "Vector store is empty and no PDFs found in %s — the chatbot will "
+            "treat every question as out-of-scope until PDFs are added.",
+            settings.POLICIES_DIR,
+        )
+        return
+
+    logger.info("Vector store is empty — running one-time startup ingestion...")
+    try:
+        ingest_all()
+        logger.info("Startup ingestion complete.")
+    except EmptyKnowledgeBaseError:
+        logger.warning("Startup ingestion found PDFs but extracted no usable text.")
+    except Exception:
+        logger.exception("Startup ingestion failed.")
+
+
 @st.cache_resource(show_spinner="Loading knowledge base and model...")
 def load_chatbot() -> RAGChatbot | None:
     """
@@ -44,6 +86,7 @@ def load_chatbot() -> RAGChatbot | None:
     """
     try:
         settings.validate()
+        _ensure_knowledge_base_ready()
         return RAGChatbot()
     except Exception:
         logger.exception("Failed to initialize RAGChatbot.")

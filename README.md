@@ -51,11 +51,11 @@ This mirrors how real enterprise HR chatbots are built: cheap local retrieval do
 
 | Service | URL |
 |---|---|
-| 🚀 **Chatbot (Hugging Face Space)** |..... |
+| 🚀 **Live Chatbot** | [https://hr-policy-intelligence-chatbot.streamlit.app](https://hr-policy-intelligence-chatbot.streamlit.app) |
 | 📓 **EDA / Corpus Exploration Notebook** | [notebooks/hr_policy_eda.ipynb](notebooks/hr_policy_eda.ipynb) |
 | 🧪 **CI Runs** | [GitHub Actions](https://github.com/narendrakalam2001/HR-Policy-Intelligence-Chatbot/actions) |
 
-> ⚠️ Hugging Face Spaces free tier: first request after inactivity may take 15-30 seconds (cold start / sleep).
+> ⚠️ As of mid-2026, Hugging Face Spaces' Docker SDK requires a paid plan for new Spaces (free CPU Basic Docker hosting was removed) — this project recommends Streamlit Community Cloud for free deployment instead; see the Deployment section below.
 
 ---
 
@@ -69,6 +69,24 @@ This mirrors how real enterprise HR chatbots are built: cheap local retrieval do
 - **Content-addressed chunk IDs.** Each chunk's ID is a hash of `(source_file, page_number, chunk_index)`, so re-running ingestion after adding or editing a PDF upserts rather than duplicates — ingestion is safe to run repeatedly.
 - **Cosine similarity space is set explicitly** on the Chroma collection (embeddings are L2-normalized), so the relevance score shown as "confidence" in the UI is a meaningful 0–1 value, not a raw distance.
 - **Conversation memory is a plain bounded list**, not a LangChain memory object — it's trivial to serialize into Streamlit's `session_state` and easy to explain end-to-end.
+
+---
+
+## 📸 Screenshots & Reports
+
+### 🖥️ Chat UI
+
+Live chat interface — question, grounded answer, source citation, and confidence score.
+
+![Dashboard](docs/screenshots/dashboard_full_ui.png)
+
+---
+
+### 📊 Ingestion & Test Reports
+
+| Ingestion Run | Test Coverage |
+|---|---|
+| ![Ingestion Report](docs/reports/Ingestion_report.png) | ![Test Coverage](docs/reports/test_coverage.png) |
 
 ---
 
@@ -88,7 +106,7 @@ This mirrors how real enterprise HR chatbots are built: cheap local retrieval do
 | **Testing** | pytest — 30 tests, hermetic (FakeEmbeddings), no API key or network dependency |
 | **CI/CD** | GitHub Actions — ruff lint → pytest → Docker build, on every push |
 | **Containerization** | Docker — non-root user, healthcheck, conditional ingestion entrypoint |
-| **Deployment** | Hugging Face Spaces (Docker SDK) |
+| **Deployment** | Streamlit Community Cloud (free) — Hugging Face Spaces Docker SDK as a paid alternative |
 
 ---
 
@@ -114,8 +132,13 @@ hr-policy-rag-chatbot/
 │   └── hr_policy_eda.ipynb                # Corpus exploration — page/chunk stats, sample chunks
 │
 ├── docs/
-│   └── architecture/
-│       └── hr_policy_system_architecture.svg   # 5-layer system architecture diagram
+│   ├── architecture/
+│   │   └── hr_policy_system_architecture.svg   # 5-layer system architecture diagram
+│   ├── screenshots/
+│   │   └── dashboard_full_ui.png          # Live chat UI screenshot
+│   └── reports/
+│       ├── Ingestion_report.png           # Ingestion run output
+│       └── test_coverage.png              # pytest run output
 │
 ├── data/
 │   └── policies/                          # PDF files go here
@@ -131,7 +154,7 @@ hr-policy-rag-chatbot/
 ├── requirements.txt                       # Production dependencies
 ├── requirements-dev.txt                   # Test/lint-only dependencies
 ├── .env.example                           # Environment variable template
-├── BEGINNER_SETUP_GUIDE.md                # Full beginner walkthrough (run → push → deploy)
+├── SETUP_GUIDE.md                         # Full command-by-command setup, run, and deploy walkthrough
 └── README.md                              # This file
 ```
 
@@ -210,14 +233,20 @@ The entrypoint runs `ingest.py` automatically on first start if no vector store 
 
 ---
 
-## ☁️ Deploying to Hugging Face Spaces
+## ☁️ Deployment
 
+**Recommended: Streamlit Community Cloud** (free, no Docker needed — this app is Streamlit-native):
+1. Go to [share.streamlit.io](https://share.streamlit.io) → sign in with GitHub.
+2. **New app** → select this repo → branch `main` → main file `streamlit_app.py`.
+3. Under **Advanced settings → Secrets**, add: `GEMINI_API_KEY = "your_key_here"`.
+4. Deploy. Free tier: ~1GB memory, apps sleep after ~12 hours of inactivity.
+
+**Alternative: Hugging Face Spaces (Docker SDK)** — as of mid-2026 this requires a paid HF plan; the Dockerfile/`entrypoint.sh` in this repo are ready for it if you have one:
 1. Create a new Space → **SDK: Docker**.
 2. In Space **Settings → Repository secrets**, add `GEMINI_API_KEY`.
-3. Push this repo to the Space's git remote.
-4. The Space builds the Dockerfile and serves on port 7860 automatically.
+3. Push this repo to the Space's git remote — it builds the Dockerfile and serves on port 7860 automatically.
 
-Full beginner-level command-by-command instructions (Command Prompt, GitHub push, Hugging Face deploy) are in [BEGINNER_SETUP_GUIDE.md](BEGINNER_SETUP_GUIDE.md).
+Full command-by-command setup, run, and deploy instructions (Command Prompt, GitHub push, deployment) are in [SETUP_GUIDE.md](SETUP_GUIDE.md).
 
 ---
 
