@@ -12,7 +12,9 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
-from app.llm_chain import RAGChatbot
+from config import settings
+
+from app.llm_chain import RAGChatbot, _extract_answer_text
 from app.vector_store import Retriever, RetrievedChunk
 
 
@@ -86,7 +88,6 @@ def test_in_scope_query_calls_llm_and_returns_sources(monkeypatch) -> None:
 
 
 def test_conversation_history_is_windowed_to_configured_turns(monkeypatch) -> None:
-    from config import settings
 
     chunks = [
         RetrievedChunk(text="x", source_file="f.pdf", page_number=1, relevance_score=0.9)
@@ -112,3 +113,56 @@ def test_conversation_history_is_windowed_to_configured_turns(monkeypatch) -> No
     assert oldest_turn not in captured["human"]
     newest_kept_turn = long_history[-1][0]
     assert newest_kept_turn in captured["human"]
+
+
+# --------------------------------------------------------------------------- #
+# Regression tests for _extract_answer_text
+# --------------------------------------------------------------------------- #
+#
+# Real bug: Gemini 3+ "thinking" models sometimes return `.content` as a
+# list of blocks (one for internal reasoning, one for the final answer)
+# instead of a plain string. Naively str()-ing that list leaked the raw
+# Python repr of the model's internal reasoning into the chat UI — e.g.
+# "['Professional/concise? Yes...', 'Based on the provided documents...']".
+# This happens intermittently (thinking isn't triggered on every call), so
+# these tests pin both shapes down explicitly rather than relying on ever
+# reproducing it live.
+
+
+def test_extract_answer_text_handles_plain_string() -> None:
+    assert _extract_answer_text("Gratuity is payable after 5 years.") == (
+        "Gratuity is payable after 5 years."
+    )
+
+
+def test_extract_answer_text_filters_out_thinking_blocks() -> None:
+    content = [
+        {"type": "thinking", "thinking": "Let me check the tone and disclaimer rules..."},
+        {"type": "text", "text": "Gratuity is payable after 5 years.", "extras": {"signature": "x"}},
+    ]
+    assert _extract_answer_text(content) == "Gratuity is payable after 5 years."
+
+
+def test_extract_answer_text_handles_thought_key_variant() -> None:
+    content = [
+        {"thought": True, "text": "internal reasoning, not the answer"},
+        {"text": "The final answer."},
+    ]
+    assert _extract_answer_text(content) == "The final answer."
+
+
+def test_extract_answer_text_joins_multiple_text_blocks() -> None:
+    content = [{"type": "text", "text": "Part one. "}, {"type": "text", "text": "Part two."}]
+    assert _extract_answer_text(content) == "Part one. Part two."
+
+
+def test_extract_answer_text_never_leaks_raw_list_repr() -> None:
+    """The exact failure mode this bug caused: a list ending up as a raw
+    Python-repr string in the answer, e.g. starting with "[' " or "[{'"."""
+    content = [
+        {"type": "thinking", "thinking": "Professional/concise? Yes."},
+        {"type": "text", "text": "Under the Maternity Benefit Act..."},
+    ]
+    result = _extract_answer_text(content)
+    assert not result.startswith("[")
+    assert "Professional/concise" not in result

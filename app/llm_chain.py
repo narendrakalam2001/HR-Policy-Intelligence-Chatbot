@@ -81,6 +81,51 @@ def _build_llm() -> ChatGoogleGenerativeAI:
     )
 
 
+def _extract_answer_text(content: object) -> str:
+    """
+    Extract the final answer text from a chat model response's `.content`.
+
+    Newer "thinking" Gemini models (Gemini 3+) return `.content` as a LIST
+    of content blocks rather than a plain string — one block for internal
+    reasoning (`{"type": "thinking", ...}`) and one for the actual answer
+    (`{"type": "text", "text": "..."}`). Naively stringifying a list like
+    that leaks the model's raw internal reasoning (as Python repr syntax,
+    e.g. "['Professional/concise? Yes...'") straight into the chat UI.
+
+    This filters out thinking/reasoning blocks and returns only the actual
+    answer text, while still handling a plain string response (older or
+    non-thinking models) unchanged.
+
+    Args:
+        content: The raw `.content` attribute from a LangChain AIMessage.
+
+    Returns:
+        The plain-text answer, with any thinking/reasoning blocks removed.
+    """
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        text_parts: List[str] = []
+        for block in content:
+            if isinstance(block, dict):
+                if block.get("type") == "thinking" or block.get("thought"):
+                    continue
+                text = block.get("text")
+                if text:
+                    text_parts.append(text)
+            elif isinstance(block, str):
+                text_parts.append(block)
+        if text_parts:
+            return "".join(text_parts).strip()
+        # Fell through with nothing recognizable as text — better to show
+        # something than a raw Python repr of internal message structure.
+        logger.warning("Could not extract text from list-shaped LLM content: %r", content)
+        return ""
+
+    return str(content)
+
+
 class RAGChatbot:
     """
     Stateless-per-call RAG chatbot: conversation history is passed in and
@@ -114,7 +159,7 @@ class RAGChatbot:
             response = self._llm.invoke(
                 [SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)]
             )
-            return response.content if isinstance(response.content, str) else str(response.content)
+            return _extract_answer_text(response.content)
         except Exception:
             logger.exception("Gemini API call failed.")
             raise
