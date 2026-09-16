@@ -20,6 +20,11 @@ env/
 chroma_store/
 logs/
 
+#notebook
+notebook/data
+notebook/logs
+notebook/chroma_store
+
 # Streamlit
 .streamlit/secrets.toml
 
